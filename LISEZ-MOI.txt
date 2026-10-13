@@ -1,0 +1,54 @@
+MA CABINE – APPLICATION INSTALLABLE (PWA)
+==========================================
+
+CONTENU DU DOSSIER (à mettre en ligne tel quel, tous les fichiers ensemble)
+- index.html ............. l'application
+- manifest.webmanifest ... informations d'installation (nom, icônes)
+- sw.js .................. permet le fonctionnement sans connexion
+- icon-192.png, icon-512.png, icon-maskable-512.png ... icônes
+- xlsx.full.min.js ....... module de création des fichiers Excel
+
+IMPORTANT : ne mettez JAMAIS le fichier "Generateur-codes-PRIVE.html" en ligne avec ces fichiers.
+Il sert à fabriquer les codes d'activation et doit rester chez vous.
+
+
+ÉTAPE 1 – METTRE L'APPLICATION EN LIGNE (GitHub Pages, gratuit)
+(Les noms des menus peuvent légèrement changer ; faites-le de préférence depuis un ordinateur.)
+
+1. Créez un compte gratuit sur github.com.
+2. Cliquez sur "New repository" (nouveau dépôt). Nom conseillé : macabine. Choisissez "Public". Validez.
+3. Décompressez ce zip sur votre ordinateur. Dans le dépôt, cliquez sur "uploading an existing file".
+4. Glissez-déposez TOUS les fichiers du dossier (pas le dossier lui-même), puis "Commit changes".
+5. Allez dans Settings > Pages. Dans "Build and deployment", Source : "Deploy from a branch".
+   Branche : main, dossier : / (root). Enregistrez.
+6. Attendez 1 à 2 minutes. L'adresse apparaît en haut de la page Pages :
+   https://VOTRE-NOM.github.io/macabine/
+   Ouvrez-la pour vérifier que l'application s'affiche.
+
+
+ÉTAPE 2 – INSTALLER SUR LE TÉLÉPHONE
+- Android (Chrome) : ouvrez l'adresse, puis menu (3 points) > "Installer l'application"
+  (ou "Ajouter à l'écran d'accueil"). Un bouton "Installer" existe aussi dans Historique > Installer l'application.
+- iPhone (Safari) : ouvrez l'adresse, touchez Partager, puis "Sur l'écran d'accueil".
+L'icône Ma Cabine apparaît alors sur l'écran, et l'application s'ouvre en plein écran, sans passer par WhatsApp.
+Elle fonctionne aussi sans connexion après la première ouverture.
+
+
+ÉTAPE 3 – ACTIVER L'APPLICATION (code d'activation)
+1. À la première ouverture, l'écran affiche un IDENTIFIANT de 6 caractères.
+2. Le client vous l'envoie.
+3. Vous ouvrez votre Générateur de codes (privé), saisissez l'identifiant et la date de fin, puis vous envoyez le code obtenu.
+4. Le client COLLE le code (il est long : ne pas le taper à la main).
+Pour renouveler : nouveau code, collé dans Historique > Activation > Renouveler.
+
+
+POINTS IMPORTANTS
+- Les données sont dans le téléphone (pas sur internet). Elles ne passent pas de l'ancienne version à celle-ci :
+  sur l'ancienne version, faites "Copier ma sauvegarde" (Historique), puis "Restaurer" dans la nouvelle.
+- Le code d'activation est signé : même si le code source de l'application est public, personne ne peut fabriquer de code
+  sans votre générateur privé. Gardez ce générateur à l'abri (ne le partagez pas, gardez-en une copie de secours).
+- Le numéro de contact affiché sur l'écran d'activation (David HOUNNOU : 0167691702) est visible dans le code public.
+  Changez-le si vous ne voulez pas qu'il soit public.
+- Pour mettre à jour l'application plus tard : remplacez index.html dans le dépôt GitHub (Add file > Upload files).
+- Une application sur Play Store / App Store est possible plus tard à partir de cette adresse, mais demande des comptes
+  développeur payants et des délais de validation.

@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ma Cabine – Point du jour</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1f5fbf">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Ma Cabine">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f4f6f9;--card:#fff;--tx:#1b1f27;--mut:#667085;--bd:#d5dae3;--pri:#1f5fbf;--ok:#12805c;--bad:#c0392b}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12151b;--card:#1b2029;--tx:#eef1f6;--mut:#9aa3b2;--bd:#2c3340;--pri:#6ea0ff;--ok:#4cc29b;--bad:#ff7b6b}}
+:root[data-theme="dark"]{--bg:#12151b;--card:#1b2029;--tx:#eef1f6;--mut:#9aa3b2;--bd:#2c3340;--pri:#6ea0ff;--ok:#4cc29b;--bad:#ff7b6b}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.4 Arial,Helvetica,sans-serif;max-width:560px;margin:auto;padding:12px}
+h1{font-size:20px;margin:0}h2{font-size:16px;margin:18px 0 8px}
+header{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
+input,textarea{font:inherit;color:inherit;background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:10px;width:100%}
+label{display:block;font-size:13px;color:var(--mut);margin:10px 0 4px}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+button{font:inherit;cursor:pointer;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:10px;padding:12px 8px;flex:1;min-width:70px}
+button.on{background:var(--pri);color:#fff;border-color:var(--pri);font-weight:700}
+.big{width:100%;margin-top:14px;background:var(--ok);color:#fff;border-color:var(--ok);font-weight:700;font-size:17px;padding:14px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px;margin-bottom:12px}
+.card h3{margin:0 0 6px;font-size:16px}
+.ln{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:5px 0;border-bottom:1px dashed var(--bd)}
+.ln:last-child{border:0}.ln input{width:130px;text-align:right}
+.mut{color:var(--mut);font-size:13px}.ok{color:var(--ok);font-weight:700}.bad{color:var(--bad);font-weight:700}
+.op{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid var(--bd)}
+.op button{flex:0 0 auto;min-width:40px;padding:6px 10px}
+#tabs{display:flex;gap:6px;margin-bottom:8px}
+#lock{position:fixed;inset:0;background:var(--bg);z-index:99;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;text-align:center}
+#lock[hidden]{display:none}
+#lock input{max-width:220px;text-align:center;font-size:22px;letter-spacing:6px}
+#lock button{flex:none;width:220px}
+#act{position:fixed;inset:0;background:var(--bg);z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:24px;text-align:center;overflow:auto}
+#act[hidden]{display:none}
+#rep{position:fixed;inset:0;background:var(--bg);z-index:98;display:flex;flex-direction:column;gap:10px;padding:16px;padding-top:calc(16px + env(safe-area-inset-top,0px));overflow:auto}
+#rep[hidden]{display:none}
+#rep textarea{flex:1;min-height:240px}
+#act input,#act textarea{max-width:290px}
+#act button{flex:none;width:260px}
+</style></head><body>
+<div id="rep" hidden><h2 style="margin:0">📋 Rapport</h2><p class="mut" style="margin:0">Copiez ce rapport ou envoyez-le sur WhatsApp pour le conserver.</p><textarea id="repx" readonly></textarea><div class="row"><button id="repc">Copier</button><button id="repw">WhatsApp</button><button id="repf">Fermer</button></div></div>
+<div id="act" hidden><h1>🔑 Activation requise</h1><p class="mut" id="acm"></p>
+ <div class="mut">Identifiant de ce téléphone</div><div id="aci" style="font-size:28px;letter-spacing:4px;font-weight:700"></div>
+ <div class="mut" id="acn"></div>
+ <input id="acc" placeholder="Collez le code d'activation" autocomplete="off" autocapitalize="none" spellcheck="false"><button class="on" id="acb">Activer</button>
+ <div class="bad" id="ace"></div>
+ <button id="acs">Copier ma sauvegarde</button><textarea id="acx" rows="2" readonly hidden></textarea></div>
+<div id="lock" hidden><h1>🔒 <span id="lkn">Ma Cabine</span></h1><p class="mut">Entrez votre code pour ouvrir l'application.</p>
+ <input id="lk" type="password" inputmode="numeric" maxlength="6" autocomplete="off"><button class="on" id="lko">Ouvrir</button>
+ <div class="bad" id="lke"></div><button id="lkf" style="border:0;background:none;color:var(--mut);text-decoration:underline;font-size:13px">Code oublié ?</button></div>
+<header><div style="display:flex;align-items:center;gap:8px;min-width:0"><img id="lg" alt="" hidden style="width:40px;height:40px;border-radius:10px;object-fit:contain"><h1 id="nm">📒 Ma Cabine</h1></div><input type="date" id="dt" style="width:auto"></header>
+<div id="lw" class="card bad" hidden></div>
+<div id="tabs"><button data-t="s" class="on">Saisie</button><button data-t="p">Point du soir</button><button data-t="h">Historique</button><button data-t="b">Bilan</button></div>
+
+<section id="p-s">
+ <label>Réseau</label><div class="row" id="nets"></div>
+ <label>Opération</label><div class="row" id="types"></div>
+ <div id="cli"><label>Numéro du client</label><input id="cph" inputmode="tel" placeholder="ex. 97 00 00 00"><label>Nom du client</label><input id="cnm" placeholder="ex. Koffi"></div>
+ <label>Montant (F CFA)</label><input id="a" inputmode="numeric" placeholder="ex. 10000">
+ <label>Ma commission (F) – facultatif</label><input id="g" inputmode="numeric" placeholder="ex. 100">
+ <label>Détail – facultatif</label><input id="n" placeholder="ex. forfait 1 Go, nom du client">
+ <button class="big" id="add">Ajouter l'opération</button>
+ <h2>Opérations du jour</h2><div id="list"></div>
+</section>
+
+<section id="p-p" hidden><div class="card"><h3>Point journalier : télécharger</h3><div class="row"><button id="xd" class="on">⬇ Télécharger (Excel)</button><button id="xr">📋 Voir le rapport</button></div></div><div id="point"></div>
+ <div class="row"><button id="cp">Copier le résumé</button><button id="wa">Envoyer sur WhatsApp</button></div></section>
+
+<section id="p-b" hidden><div id="bilan"></div></section>
+
+<section id="p-h" hidden><div id="hist"></div>
+ <h2>Ma cabine</h2>
+ <label>Nom affiché en haut de l'application</label><input id="cn" maxlength="40" placeholder="ex. Cabine Espoir">
+ <label>Logo ou photo de l'enseigne (facultatif)</label><input type="file" id="lf" accept="image/*">
+ <button id="lr" style="margin-top:8px;width:100%">Retirer le logo</button>
+ <h2>Installer l'application</h2>
+ <p class="mut" id="ins-t"></p>
+ <button id="ins" class="big" hidden>Installer sur l'écran d'accueil</button>
+ <h2>Activation</h2>
+ <p class="mut" id="lic-st"></p>
+ <div class="ln"><span>Identifiant de ce téléphone</span><b id="lic-id"></b></div>
+ <input id="rc" placeholder="Collez le nouveau code" autocapitalize="none" spellcheck="false" style="margin-top:8px"><button id="rcb" class="big">Renouveler</button>
+ <h2>Code d'accès</h2>
+ <div id="pn-no"><p class="mut">Choisissez un code de 4 à 6 chiffres, demandé à chaque ouverture de l'application sur ce téléphone.</p>
+ <input id="pn1" type="password" inputmode="numeric" maxlength="6" placeholder="Nouveau code"><button id="pset" class="big">Définir le code</button></div>
+ <div id="pn-yes" hidden><p class="mut">Un code est actif. Pour le changer ou le retirer, saisissez d'abord l'ancien code.</p>
+ <input id="po" type="password" inputmode="numeric" maxlength="6" placeholder="Ancien code">
+ <input id="pn2" type="password" inputmode="numeric" maxlength="6" placeholder="Nouveau code" style="margin-top:8px">
+ <div class="row" style="margin-top:8px"><button id="pchg">Changer le code</button><button id="prm">Retirer le code</button></div>
+ <button id="plk" style="width:100%;margin-top:8px">Verrouiller maintenant</button></div>
+ <p class="mut">Ce code est un simple verrou contre les regards, pas une sécurité forte. Si vous l'oubliez, « Code oublié ? » sur l'écran de verrouillage efface les données de ce téléphone : faites une sauvegarde avant.</p>
+ <h2>Sauvegarde</h2>
+ <p class="mut">Les données restent dans ce téléphone, sur ce navigateur. Faites une sauvegarde de temps en temps (copiez-la, puis collez-la dans un message WhatsApp à vous-même).</p>
+ <div class="row"><button id="bk">Copier ma sauvegarde</button><button id="rs">Restaurer</button></div>
+ <h2>Remise à zéro</h2>
+ <p class="mut">Efface toutes les opérations et tous les soldes de ce téléphone. À utiliser après un essai.</p>
+ <button id="rz" style="width:100%;color:var(--bad);border-color:var(--bad);font-weight:700">Tout effacer</button>
+ <textarea id="bx" rows="3" placeholder="Pour restaurer : collez ici la sauvegarde, puis appuyez sur Restaurer"></textarea></section>
+
+<script src="xlsx.full.min.js"></script>
+<script>
+const NETS=[["mtn","MTN","#f5c400","#000"],["moov","Moov","#0b6fd6","#fff"],["celtiis","Celtiis","#0a9a4a","#fff"]];
+const TYPES=[["dep","Dépôt"],["ret","Retrait"],["cre","Crédit"],["for","Forfait"]];
+let S={ops:[],days:{}};
+try{const r=localStorage.getItem("cabine-v1");if(r)S=JSON.parse(r)}catch(e){}
+const save=()=>{try{localStorage.setItem("cabine-v1",JSON.stringify(S))}catch(e){}};
+const $=id=>document.getElementById(id);
+const fmt=n=>(Math.round(n)||0).toLocaleString("fr-FR")+" F";
+const tod=()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
+const fd=d=>d.split("-").reverse().join("/");
+let date=tod(),net="mtn",typ="dep";
+$("dt").value=date;
+
+function sums(d){const s={};NETS.forEach(([k])=>s[k]={dep:0,ret:0,cre:0,for:0,gain:0,n:0});
+ S.ops.filter(o=>o.d===d).forEach(o=>{const x=s[o.net];x[o.t]+=o.a;x.gain+=o.g||0;x.n++});return s}
+const prevClose=(k,d)=>{const ks=Object.keys(S.days).filter(x=>x<d&&S.days[x].close&&S.days[x].close[k]!==undefined&&S.days[x].close[k]!=="").sort();return ks.length?+S.days[ks[ks.length-1]].close[k]:0};
+const openV=k=>{const o=(S.days[date]||{}).open;return o&&o[k]!==undefined&&o[k]!==""?+o[k]:prevClose(k,date)};
+const closeV=k=>{const c=(S.days[date]||{}).close;return c&&c[k]!==undefined&&c[k]!==""?+c[k]:null};
+function setDay(w,k,v){S.days[date]=S.days[date]||{open:{},close:{}};S.days[date][w]=S.days[date][w]||{};const old=S.days[date][w][k],nv=String(v).replace(/\s/g,"");if(old!==undefined&&old!==""&&old!==nv){S.alog=S.alog||[];S.alog.push({t:new Date().toLocaleString("fr-FR"),d:date,w,k,old,nv})}S.days[date][w][k]=nv;save();renderPoint()}
+const expNet=(k,s)=>openV(k)+s[k].ret-s[k].dep-s[k].cre-s[k].for;
+const expCash=s=>NETS.reduce((t,[k])=>t+s[k].dep+s[k].cre+s[k].for-s[k].ret,openV("cash"));
+const ecart=(c,e)=>c===null?'<span class="mut">à saisir</span>':(c-e===0?'<span class="ok">✔ Juste</span>':'<span class="bad">Écart '+(c-e>0?"+":"")+fmt(c-e)+'</span>');
+
+function buildBtns(){
+ $("nets").innerHTML=NETS.map(([k,l,bg,fg])=>`<button data-n="${k}" style="${net===k?`background:${bg};color:${fg};border-color:${bg};font-weight:700`:""}">${l}</button>`).join("");
+ $("types").innerHTML=TYPES.map(([k,l])=>`<button data-y="${k}" class="${typ===k?"on":""}">${l}</button>`).join("");$("cli").hidden=!(typ==="dep"||typ==="ret")}
+$("nets").onclick=e=>{const b=e.target.closest("button");if(b){net=b.dataset.n;buildBtns()}};
+$("types").onclick=e=>{const b=e.target.closest("button");if(b){typ=b.dataset.y;buildBtns()}};
+
+$("add").onclick=()=>{const a=parseInt($("a").value.replace(/\s/g,""),10);if(!(a>0)){alert("Entrez un montant.");return}
+ const now=new Date();S.ops.push({id:Date.now(),d:date,h:String(now.getHours()).padStart(2,"0")+":"+String(now.getMinutes()).padStart(2,"0"),net,t:typ,a,g:parseInt($("g").value,10)||0,n:$("n").value.trim(),ph:(typ==="dep"||typ==="ret")?$("cph").value.trim():"",nm:(typ==="dep"||typ==="ret")?$("cnm").value.trim():""});
+ save();$("a").value="";$("g").value="";$("n").value="";$("cph").value="";$("cnm").value="";renderList()};
+
+function renderList(){
+ const L=S.ops.filter(o=>o.d===date).reverse();
+ $("list").innerHTML=L.length?L.map(o=>{const nl=NETS.find(x=>x[0]===o.net)[1],tl=TYPES.find(x=>x[0]===o.t)[1];
+  return `<div class="op"><div><b>${nl} · ${tl}</b> – ${fmt(o.a)}<br><span class="mut">${o.h}${o.g?" · commission "+fmt(o.g):""}${o.n?" · "+o.n.replace(/</g,"&lt;"):""}${cli(o)}</span></div><button onclick="del(${o.id})">✕</button></div>`}).join(""):'<p class="mut">Aucune opération pour cette date.</p>'}
+function del(id){if(confirm("Supprimer cette opération ?")){const x=S.ops.find(o=>o.id===id);if(x){S.log=S.log||[];S.log.push({w:new Date().toLocaleString("fr-FR"),o:x})}S.ops=S.ops.filter(o=>o.id!==id);save();renderList()}}
+
+function renderPoint(){
+ const s=sums(date);let h="";
+ NETS.forEach(([k,l])=>{const x=s[k],c=closeV(k);
+  h+=`<div class="card"><h3>${l}</h3>
+  <div class="ln"><span>Solde au début</span><input inputmode="numeric" value="${openV(k)}" onchange="setDay('open','${k}',this.value)"></div>
+  <div class="ln"><span>+ Retraits</span><b>${fmt(x.ret)}</b></div>
+  <div class="ln"><span>− Dépôts</span><b>${fmt(x.dep)}</b></div>
+  <div class="ln"><span>− Crédits</span><b>${fmt(x.cre)}</b></div>
+  <div class="ln"><span>− Forfaits</span><b>${fmt(x.for)}</b></div>
+  <div class="ln"><span><b>Solde attendu</b></span><b>${fmt(expNet(k,s))}</b></div>
+  <div class="ln"><span>Solde réel (à la fin)</span><input inputmode="numeric" value="${c===null?"":c}" placeholder="solde du SIM" onchange="setDay('close','${k}',this.value)"></div>
+  <div class="ln"><span>Contrôle</span>${ecart(c,expNet(k,s))}</div>
+  <div class="mut">Commissions notées : ${fmt(x.gain)} · ${x.n} opération(s)</div></div>`});
+ const cc=closeV("cash"),ec=expCash(s),tg=NETS.reduce((t,[k])=>t+s[k].gain,0);
+ h+=`<div class="card"><h3>Caisse (espèces)</h3>
+  <div class="ln"><span>Espèces au début</span><input inputmode="numeric" value="${openV("cash")}" onchange="setDay('open','cash',this.value)"></div>
+  <div class="ln"><span><b>Espèces attendues</b></span><b>${fmt(ec)}</b></div>
+  <div class="ln"><span>Espèces comptées</span><input inputmode="numeric" value="${cc===null?"":cc}" placeholder="argent en main" onchange="setDay('close','cash',this.value)"></div>
+  <div class="ln"><span>Contrôle</span>${ecart(cc,ec)}</div>
+  <div class="mut">Attendu = début + dépôts + crédits + forfaits − retraits.</div></div>
+ <div class="card"><h3>Gain du jour</h3><div class="ln"><span>Total des commissions notées</span><b>${fmt(tg)}</b></div></div>`;
+ $("point").innerHTML=h}
+
+function summary(){const s=sums(date);let t="📒 "+((S.cfg&&S.cfg.name)?S.cfg.name+" – ":"")+"Point du "+fd(date)+"\n",tg=0;
+ NETS.forEach(([k,l])=>{const x=s[k],c=closeV(k),e=expNet(k,s);tg+=x.gain;
+  t+=`\n${l} : dépôts ${fmt(x.dep)}, retraits ${fmt(x.ret)}, crédits ${fmt(x.cre)}, forfaits ${fmt(x.for)}\n  Solde attendu ${fmt(e)}`+(c===null?"":`, réel ${fmt(c)}, écart ${fmt(c-e)}`)+"\n"});
+ const cc=closeV("cash"),ec=expCash(s);
+ t+=`\nCaisse : attendu ${fmt(ec)}`+(cc===null?"":`, comptée ${fmt(cc)}, écart ${fmt(cc-ec)}`)+`\nCommissions notées : ${fmt(tg)}`;return t}
+$("cp").onclick=()=>copy(summary(),"Résumé copié.");
+$("wa").onclick=()=>window.open("https://wa.me/?text="+encodeURIComponent(summary()),"_blank");
+function copy(t,m){(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>alert(m)).catch(()=>{$("bx").value=t;$("bx").select();alert("Copiez le texte dans la zone de texte (onglet Historique).")})}
+
+function renderHist(){
+ const ds=[...new Set(S.ops.map(o=>o.d))].sort().reverse();
+ $("hist").innerHTML=ds.length?ds.map(d=>{const s=sums(d);let dep=0,ret=0,ca=0,g=0,n=0;
+  NETS.forEach(([k])=>{dep+=s[k].dep;ret+=s[k].ret;ca+=s[k].cre+s[k].for;g+=s[k].gain;n+=s[k].n});
+  return `<div class="card"><h3>${fd(d)} <span class="mut">· ${n} opération(s)</span></h3>
+  <div class="ln"><span>Dépôts</span><b>${fmt(dep)}</b></div><div class="ln"><span>Retraits</span><b>${fmt(ret)}</b></div>
+  <div class="ln"><span>Crédits + forfaits</span><b>${fmt(ca)}</b></div><div class="ln"><span>Commissions notées</span><b>${fmt(g)}</b></div><details style="margin-top:8px"><summary>Voir les opérations avec l'heure</summary>${S.ops.filter(o=>o.d===d).sort((x,y)=>x.h.localeCompare(y.h)).map(o=>`<div class="op"><div><b>${o.h}</b> · ${NETS.find(x=>x[0]===o.net)[1]} · ${TYPES.find(x=>x[0]===o.t)[1]} – ${fmt(o.a)}<br><span class="mut">${o.g?"commission "+fmt(o.g):""}${o.n?" · "+esc(o.n):""}${cli(o)}</span></div></div>`).join("")}</details><div class="row" style="margin-top:8px"><button onclick="go('${d}')">Ouvrir le point</button><button onclick="exportXlsx('${d}')">⬇ Télécharger ce jour</button></div></div>`}).join(""):'<p class="mut">Pas encore d\'historique.</p>'}
+function go(d){date=d;$("dt").value=d;showTab("p");renderAll()}
+$("bk").onclick=()=>copy(JSON.stringify(S),"Sauvegarde copiée. Collez-la dans un message WhatsApp à vous-même.");
+$("rs").onclick=()=>{try{const o=JSON.parse($("bx").value);if(!o.ops||!o.days)throw 0;if(confirm("Remplacer les données actuelles par cette sauvegarde ?")){S=o;save();renderAll();alert("Sauvegarde restaurée.")}}catch(e){alert("Sauvegarde non valide.")}};
+
+$("rz").onclick=()=>{if(confirm("Effacer TOUTES les données de cette application sur ce téléphone ? C'est définitif.")&&confirm("Dernière confirmation : tout effacer ?")){S={ops:[],days:{},cfg:S.cfg};save();renderAll();alert("Toutes les données ont été effacées.")}};
+let bmode="m",bper=tod().slice(0,7);
+const KL={mtn:"MTN",moov:"Moov",celtiis:"Celtiis",cash:"Caisse"};
+const MN=["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
+const openD=(k,d)=>{const o=(S.days[d]||{}).open;return o&&o[k]!==undefined&&o[k]!==""?+o[k]:prevClose(k,d)};
+const closeD=(k,d)=>{const c=(S.days[d]||{}).close;return c&&c[k]!==undefined&&c[k]!==""?+c[k]:null};
+function dayCheck(d){const s=sums(d),ks=["mtn","moov","celtiis","cash"];let bad=0,got=0;
+ ks.forEach(k=>{const c=closeD(k,d);if(c===null)return;got++;
+  const e=k==="cash"?NETS.reduce((t,[n])=>t+s[n].dep+s[n].cre+s[n].for-s[n].ret,openD("cash",d)):openD(k,d)+s[k].ret-s[k].dep-s[k].cre-s[k].for;bad+=Math.abs(c-e)});
+ return{st:got===0?"open":bad?"bad":got<ks.length?"part":"ok",bad}}
+const chip=c=>c.st==="ok"?'<span class="ok">✔ Juste</span>':c.st==="bad"?'<span class="bad">Écart '+fmt(c.bad)+'</span>':'<span class="mut">'+(c.st==="part"?"Partiel":"Non clôturé")+'</span>';
+const pdays=p=>[...new Set([...S.ops.map(o=>o.d),...Object.keys(S.days)])].filter(d=>d.startsWith(p)).sort().reverse();
+function tot(ds){const t={dep:0,ret:0,cre:0,for:0,gain:0,n:0,bad:0,open:0,ok:0,part:0,net:{}};NETS.forEach(([k])=>t.net[k]={dep:0,ret:0,cre:0,for:0});
+ ds.forEach(d=>{const s=sums(d);NETS.forEach(([k])=>{const x=s[k];["dep","ret","cre","for"].forEach(f=>{t[f]+=x[f];t.net[k][f]+=x[f]});t.gain+=x.gain;t.n+=x.n});t[dayCheck(d).st]++});return t}
+function goM(m){bmode="m";bper=m;renderBilan()}
+function renderBilan(){
+ const per=bmode==="m"?bper:bper.slice(0,4),ds=pdays(per),t=tot(ds),ln=(a,b)=>`<div class="ln"><span>${a}</span><b>${b}</b></div>`;
+ let h=`<div class="row"><button data-m="m" class="${bmode==="m"?"on":""}">Mois</button><button data-m="a" class="${bmode==="a"?"on":""}">Année</button></div>
+ <label>Choisir le mois${bmode==="a"?" (l'année de ce mois sera affichée)":""}</label><input type="month" id="bm" value="${bper}">
+ <h2>${bmode==="m"?"Bilan de "+MN[+per.slice(5)-1]+" "+per.slice(0,4):"Bilan de l'année "+per}</h2><div class="row" style="margin-bottom:10px"><button id="xb" class="on">⬇ Télécharger (Excel)</button><button id="xbr">📋 Voir le rapport</button></div>`;
+ h+=`<div class="card">${ln("Opérations",t.n)}${ln("Dépôts",fmt(t.dep))}${ln("Retraits",fmt(t.ret))}${ln("Crédits",fmt(t.cre))}${ln("Forfaits",fmt(t.for))}${ln("Commissions notées",fmt(t.gain))}</div>`;
+ h+=`<div class="card"><h3>Par réseau</h3>`+NETS.map(([k,l])=>{const x=t.net[k];return`<div class="mut" style="padding:4px 0"><b>${l}</b> : dépôts ${fmt(x.dep)} · retraits ${fmt(x.ret)} · crédits ${fmt(x.cre)} · forfaits ${fmt(x.for)}</div>`}).join("")+`</div>`;
+ h+=`<div class="card"><h3>Contrôles des jours</h3>${ln("Jours justes",'<span class="ok">'+t.ok+'</span>')}${ln("Jours avec écart",'<span class="bad">'+t.bad+'</span>')}${ln("Jours non clôturés ou partiels",t.open+t.part)}</div>`;
+ let body="";
+ if(bmode==="m"){h+=`<h2>Jour par jour (touchez un jour pour le revoir)</h2>`;
+  body=ds.map(d=>{const s=sums(d);let n=0,dp=0,rt=0,ca=0;NETS.forEach(([k])=>{n+=s[k].n;dp+=s[k].dep;rt+=s[k].ret;ca+=s[k].cre+s[k].for});
+   return`<div class="card" onclick="go('${d}')" style="cursor:pointer"><div class="ln"><b>${fd(d)}</b>${chip(dayCheck(d))}</div><div class="mut">${n} op. · dépôts ${fmt(dp)} · retraits ${fmt(rt)} · crédits+forfaits ${fmt(ca)}</div></div>`}).join("")}
+ else{h+=`<h2>Mois par mois (touchez un mois)</h2>`;
+  body=MN.map((m,i)=>{const pm=per+"-"+String(i+1).padStart(2,"0"),d2=pdays(pm);if(!d2.length)return"";const x=tot(d2);
+   return`<div class="card" onclick="goM('${pm}')" style="cursor:pointer"><div class="ln"><b>${m}</b>${x.bad?'<span class="bad">'+x.bad+' jour(s) avec écart</span>':'<span class="ok">Aucun écart</span>'}</div><div class="mut">${x.n} op. · dépôts ${fmt(x.dep)} · retraits ${fmt(x.ret)} · crédits+forfaits ${fmt(x.cre+x.for)} · commissions ${fmt(x.gain)}</div></div>`}).join("")}
+ h+=body||'<p class="mut">Aucune donnée pour cette période.</p>';
+ const lg=(S.log||[]).filter(x=>x.o.d.startsWith(per)),al=(S.alog||[]).filter(x=>x.d.startsWith(per));
+ h+=`<h2>Journal des suppressions</h2>`+(lg.length?lg.map(x=>`<div class="op"><div><b>${NETS.find(n=>n[0]===x.o.net)[1]} · ${TYPES.find(n=>n[0]===x.o.t)[1]} – ${fmt(x.o.a)}</b><br><span class="mut">opération du ${fd(x.o.d)} à ${x.o.h}, supprimée le ${x.w}</span></div></div>`).join(""):'<p class="mut">Aucune suppression.</p>');
+ h+=`<h2>Journal des modifications de soldes</h2>`+(al.length?al.map(x=>`<div class="op"><div><b>${KL[x.k]} (${x.w==="open"?"début":"fin"}) du ${fd(x.d)}</b><br><span class="mut">${fmt(+x.old)} → ${fmt(+x.nv)} · modifié le ${x.t}</span></div></div>`).join(""):'<p class="mut">Aucune modification.</p>');
+ $("bilan").innerHTML=h}
+$("bilan").onclick=e=>{if(e.target.closest("#xbr")){showReport(bmode==="m"?bper:bper.slice(0,4));return}if(e.target.closest("#xb")){exportXlsx(bmode==="m"?bper:bper.slice(0,4));return}const b=e.target.closest("button[data-m]");if(b){bmode=b.dataset.m;renderBilan()}};
+$("bilan").onchange=e=>{if(e.target.id==="bm"&&e.target.value){bper=e.target.value;renderBilan()}};
+function applyCfg(){const c=S.cfg||{};$("nm").textContent=c.name||"📒 Ma Cabine";document.title=c.name||"Ma Cabine – Point du jour";const i=$("lg");if(c.logo){i.src=c.logo;i.hidden=false}else{i.hidden=true}$("cn").value=c.name||""}
+$("cn").onchange=e=>{S.cfg=S.cfg||{};S.cfg.name=e.target.value.trim().slice(0,40);save();applyCfg()};
+$("lf").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,128/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext("2d").drawImage(im,0,0,c.width,c.height);S.cfg=S.cfg||{};S.cfg.logo=c.toDataURL("image/png");save();applyCfg();e.target.value=""};im.src=r.result};r.readAsDataURL(f)};
+$("lr").onclick=()=>{if(S.cfg&&S.cfg.logo){delete S.cfg.logo;save();applyCfg()}};
+const hsh=s=>{let a=5381,b=52711;for(const c of "cab|"+s){a=((a<<5)+a)^c.charCodeAt(0);b=((b<<5)+b)^c.charCodeAt(0)}return(a>>>0).toString(36)+(b>>>0).toString(36)};
+const getPin=()=>{try{return localStorage.getItem("cabine-pin")}catch(e){return null}};
+const setPin=v=>{try{v?localStorage.setItem("cabine-pin",v):localStorage.removeItem("cabine-pin")}catch(e){}};
+const okPin=v=>/^\d{4,6}$/.test(v);
+function pinUI(){const h=!!getPin();$("pn-no").hidden=h;$("pn-yes").hidden=!h}
+function lockNow(){if(getPin()){$("lkn").textContent=(S.cfg&&S.cfg.name)||"Ma Cabine";$("lk").value="";$("lke").textContent="";$("lock").hidden=false}}
+$("lko").onclick=()=>{if(hsh($("lk").value.trim())===getPin()){$("lock").hidden=true;$("lk").value=""}else{$("lke").textContent="Code incorrect.";$("lk").value=""}};
+$("lk").onkeydown=e=>{if(e.key==="Enter")$("lko").click()};
+$("lkf").onclick=()=>{if(confirm("Code oublié : pour continuer, il faut effacer TOUTES les données et le code de cette application sur ce téléphone. Vous pourrez ensuite restaurer une sauvegarde et choisir un nouveau code. Continuer ?")&&confirm("Dernière confirmation : tout effacer ?")){setPin(null);S={ops:[],days:{}};save();$("lock").hidden=true;pinUI();renderAll();alert("Application réinitialisée. Vous pouvez définir un nouveau code dans l'onglet Historique.")}};
+$("pset").onclick=()=>{const v=$("pn1").value.trim();if(!okPin(v)){alert("Le code doit contenir 4 à 6 chiffres.");return}setPin(hsh(v));$("pn1").value="";pinUI();alert("Code défini. Il sera demandé à chaque ouverture.")};
+$("pchg").onclick=()=>{const o=$("po").value.trim(),v=$("pn2").value.trim();if(hsh(o)!==getPin()){alert("Ancien code incorrect.");return}if(!okPin(v)){alert("Le nouveau code doit contenir 4 à 6 chiffres.");return}setPin(hsh(v));$("po").value="";$("pn2").value="";alert("Code changé.")};
+$("prm").onclick=()=>{if(hsh($("po").value.trim())!==getPin()){alert("Saisissez l'ancien code dans la case « Ancien code » pour le retirer.");return}setPin(null);$("po").value="";pinUI();alert("Code retiré.")};
+$("plk").onclick=lockNow;
+const CONTACT="David HOUNNOU : 0167691702";
+const PUBKEY={"kty":"EC","crv":"P-256","x":"uEVR8uocu3ADGkdR5RJlUIPyVsnoFnykQ7RvNLBb3Hw","y":"_2R9kyB0ifs9fiOs5QRPbzbQprH8uq74HjCqymwX6lk"};
+const lsg=k=>{try{return localStorage.getItem(k)}catch(e){return null}},lss=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
+function devId(){let d=lsg("cabine-id");if(!d){d="";const A="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";for(let i=0;i<6;i++)d+=A[Math.floor(Math.random()*A.length)];lss("cabine-id",d)}return d}
+function effToday(){let t=tod();const s=lsg("cabine-seen");if(s&&s>t)t=s;else lss("cabine-seen",t);return t}
+const b64u=t=>{t=t.replace(/-/g,"+").replace(/_/g,"/");while(t.length%4)t+="=";const b=atob(t),u=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u};
+let _pk=null;
+async function parseCode(v){v=(v||"").replace(/\s/g,"");const m=/^(\d{2})(\d{2})(\d{2})\.([A-Za-z0-9_-]{86})$/.exec(v);if(!m||+m[2]<1||+m[2]>12||+m[3]<1||+m[3]>31)return null;
+ try{_pk=_pk||await crypto.subtle.importKey("jwk",PUBKEY,{name:"ECDSA",namedCurve:"P-256"},false,["verify"]);
+  const ok=await crypto.subtle.verify({name:"ECDSA",hash:"SHA-256"},_pk,b64u(m[4]),new TextEncoder().encode("CAB1|"+devId()+"|"+m[1]+m[2]+m[3]));
+  return ok?{code:v,exp:"20"+m[1]+"-"+m[2]+"-"+m[3]}:null}catch(e){return null}}
+async function licInfo(){const c=await parseCode(lsg("cabine-lic"));if(!c)return{ok:false,why:"none"};const t=effToday();if(t>c.exp)return{ok:false,why:"exp",exp:c.exp};return{ok:true,exp:c.exp,days:Math.round((new Date(c.exp)-new Date(t))/864e5)}}
+async function applyCode(v){if(!(window.crypto&&crypto.subtle))return"Activation impossible dans ce navigateur (connexion non sécurisée).";const c=await parseCode(v);if(!c)return"Code incorrect pour ce téléphone.";if(c.exp<effToday())return"Ce code est déjà expiré.";lss("cabine-lic",c.code);return""}
+function licUI(i){$("lic-id").textContent=devId();$("lic-st").textContent=i.ok?"Valable jusqu'au "+fd(i.exp)+" ("+i.days+" jour"+(i.days>1?"s":"")+" restant"+(i.days>1?"s":"")+").":"Non activée."}
+async function checkLic(){const i=await licInfo();$("act").hidden=i.ok;
+ if(!i.ok){$("aci").textContent=devId();$("acm").textContent=i.why==="exp"?"Votre activation a expiré le "+fd(i.exp)+". Contactez la personne qui vous a fourni l'application pour la renouveler.":"Cette application doit être activée. Envoyez l'identifiant ci-dessous à la personne qui vous l'a fournie pour recevoir votre code.";$("acn").textContent="Contact : "+CONTACT}
+ const w=$("lw");if(i.ok&&i.days<=7){w.hidden=false;w.textContent="Activation valable encore "+i.days+" jour(s), jusqu'au "+fd(i.exp)+". Contact : "+CONTACT}else w.hidden=true;licUI(i)}
+$("acb").onclick=async()=>{const r=await applyCode($("acc").value);$("ace").textContent=r;if(!r){$("acc").value="";checkLic()}};
+$("acc").onkeydown=e=>{if(e.key==="Enter")$("acb").click()};
+$("rcb").onclick=async()=>{const r=await applyCode($("rc").value);if(r){alert(r);return}$("rc").value="";checkLic();alert("Activation renouvelée.")};
+$("acs").onclick=()=>{const t=JSON.stringify(S);$("acx").hidden=false;$("acx").value=t;$("acx").select();try{navigator.clipboard.writeText(t).then(()=>{$("ace").textContent="Sauvegarde copiée. Collez-la dans un message WhatsApp à vous-même."})}catch(e){$("ace").textContent="Copiez le texte ci-dessous."}};
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)checkLic()});setInterval(checkLic,60000);
+const esc=t=>String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;");
+const cli=o=>(o.nm||o.ph)?" · 👤 "+esc(o.nm||"")+(o.ph?" "+esc(o.ph):""):"";
+const cl2=o=>(o.nm||o.ph)?" | "+(o.nm||"")+" "+(o.ph||""):"";
+const stT=c=>c.st==="ok"?"Juste":c.st==="bad"?"Écart "+fmt(c.bad):c.st==="part"?"Partiel":"Non clôturé";
+function reportText(per){const ds=pdays(per).slice().sort(),NL=Object.fromEntries(NETS.map(x=>[x[0],x[1]])),TL=Object.fromEntries(TYPES);
+ let t="📒 "+((S.cfg&&S.cfg.name)||"Ma Cabine")+" – Point "+(per.length===10?fd(per):per)+"\n";
+ if(!ds.length)return t+"\nAucune donnée pour cette période.";
+ ds.forEach(d=>{const sm=sums(d);let a=[0,0,0,0,0,0];NETS.forEach(([k])=>{const x=sm[k];a[0]+=x.n;a[1]+=x.dep;a[2]+=x.ret;a[3]+=x.cre;a[4]+=x.for;a[5]+=x.gain});
+  t+="\n"+fd(d)+" : "+a[0]+" op. | dépôts "+fmt(a[1])+" | retraits "+fmt(a[2])+" | crédits "+fmt(a[3])+" | forfaits "+fmt(a[4])+" | commissions "+fmt(a[5])+" | "+stT(dayCheck(d))});
+ if(per.length===10){t+="\n\nOpérations :";S.ops.filter(o=>o.d===per).sort((x,y)=>x.h.localeCompare(y.h)).forEach(o=>{t+="\n"+o.h+" "+NL[o.net]+" "+TL[o.t]+" "+fmt(o.a)+cl2(o)+(o.g?" | com. "+fmt(o.g):"")+(o.n?" | "+o.n:"")})}
+ return t}
+function showReport(per){$("repx").value=reportText(per);$("rep").hidden=false}
+$("repc").onclick=()=>{const t=$("repx").value;$("repx").select();try{navigator.clipboard.writeText(t).then(()=>alert("Rapport copié."))}catch(e){}};
+$("repw").onclick=()=>window.open("https://wa.me/?text="+encodeURIComponent($("repx").value),"_blank");
+$("repf").onclick=()=>{$("rep").hidden=true};
+$("xr").onclick=()=>showReport(date);
+async function exportXlsx(per){
+ if(!window.XLSX){alert("Le module Excel n'a pas pu se charger. Vérifiez la connexion internet, rechargez la page et réessayez.");return}
+ const dl=window.claude&&window.claude.use?await window.claude.use("downloads"):null;
+ const ds=pdays(per).slice().sort();if(!ds.length){alert("Aucune donnée pour cette période.");return}
+ const NL=Object.fromEntries(NETS.map(x=>[x[0],x[1]])),TL=Object.fromEntries(TYPES);
+ const res=[["Date","Opérations","Dépôts","Retraits","Crédits","Forfaits","Commissions","Contrôle"]],sol=[["Date","Compte","Solde début","Solde attendu","Solde réel","Écart"]],T=[0,0,0,0,0,0];
+ ds.forEach(d=>{const sm=sums(d),c=dayCheck(d);let a=[0,0,0,0,0,0];
+  NETS.forEach(([k])=>{const x=sm[k];a[0]+=x.n;a[1]+=x.dep;a[2]+=x.ret;a[3]+=x.cre;a[4]+=x.for;a[5]+=x.gain;
+   const o=openD(k,d),e=o+x.ret-x.dep-x.cre-x.for,r=closeD(k,d);sol.push([fd(d),NL[k],o,e,r===null?"":r,r===null?"":r-e])});
+  const o=openD("cash",d),e=o+a[1]+a[3]+a[4]-a[2],r=closeD("cash",d);sol.push([fd(d),"Caisse (espèces)",o,e,r===null?"":r,r===null?"":r-e]);
+  a.forEach((v,i)=>T[i]+=v);
+  res.push([fd(d),...a,c.st==="ok"?"Juste":c.st==="bad"?"Écart "+c.bad:c.st==="part"?"Partiel":"Non clôturé"])});
+ res.push(["TOTAL",...T,""]);
+ const ops=[["Date","Heure","Réseau","Type","Numéro client","Nom client","Montant","Commission","Détail"]].concat(S.ops.filter(o=>o.d.startsWith(per)).sort((x,y)=>(x.d+x.h).localeCompare(y.d+y.h)).map(o=>[fd(o.d),o.h,NL[o.net],TL[o.t],o.ph||"",o.nm||"",o.a,o.g||0,o.n||""]));
+ const sup=[["Date opération","Heure","Réseau","Type","Montant","Supprimée le"]].concat((S.log||[]).filter(x=>x.o.d.startsWith(per)).map(x=>[fd(x.o.d),x.o.h,NL[x.o.net],TL[x.o.t],x.o.a,x.w]));
+ const mod=[["Date du point","Compte","Début/Fin","Ancien solde","Nouveau solde","Modifié le"]].concat((S.alog||[]).filter(x=>x.d.startsWith(per)).map(x=>[fd(x.d),KL[x.k],x.w==="open"?"début":"fin",+x.old||0,+x.nv||0,x.t]));
+ if(ops.length>1)ops.push(["TOTAL","","","","","",ops.slice(1).reduce((t,r)=>t+r[6],0),ops.slice(1).reduce((t,r)=>t+r[7],0),""]);const wb=XLSX.utils.book_new();
+ (per.length>7?[["Opérations",ops],["Résumé",res]]:[["Résumé",res],["Opérations",ops]]).concat([["Soldes",sol],["Suppressions",sup],["Modifs soldes",mod]]).forEach(([n,r])=>{const w=XLSX.utils.aoa_to_sheet(r);w["!cols"]=r[0].map(()=>({wch:18}));XLSX.utils.book_append_sheet(wb,w,n)});
+ const fn="Point_"+per+".xlsx",buf=XLSX.write(wb,{bookType:"xlsx",type:"array"});
+ if(dl){try{await dl.save({filename:fn,data:buf.slice(0)});return}catch(e){if(e&&e.code==="declined")return}}
+ try{const f=new File([buf],fn,{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:fn});return}}catch(e){if(e&&e.name==="AbortError")return}
+ try{const u=URL.createObjectURL(new Blob([buf]));const a=document.createElement("a");a.href=u;a.download=fn;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000)}catch(e){}
+}
+$("xd").onclick=()=>exportXlsx(date);
+let dip=null;window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();dip=e;$("ins").hidden=false});
+$("ins").onclick=async()=>{if(dip){dip.prompt();try{await dip.userChoice}catch(e){}dip=null;$("ins").hidden=true}};
+$("ins-t").textContent=window.matchMedia&&matchMedia("(display-mode: standalone)").matches?"L'application est déjà installée sur ce téléphone.":/iphone|ipad/i.test(navigator.userAgent)?"Sur iPhone : dans Safari, touchez Partager, puis « Sur l'écran d'accueil ».":"Si le bouton ci-dessous n'apparaît pas, ouvrez le menu du navigateur et choisissez « Installer l'application » ou « Ajouter à l'écran d'accueil ».";
+if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+function showTab(t){["s","p","h","b"].forEach(x=>{$("p-"+x).hidden=x!==t});document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on",b.dataset.t===t));if(t==="h")renderHist();if(t==="b")renderBilan();if(t==="p")renderPoint()}
+$("tabs").onclick=e=>{const b=e.target.closest("button");if(b)showTab(b.dataset.t)};
+$("dt").onchange=e=>{date=e.target.value||tod();renderAll()};
+function renderAll(){renderList();renderPoint();renderHist();renderBilan();applyCfg()}
+buildBtns();renderAll();pinUI();lockNow();checkLic();
+</script></body></html>
